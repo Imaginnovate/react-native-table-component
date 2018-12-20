@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, ViewPropTypes, Text, StyleSheet } from 'react-native';
 
-export class Cell extends Component {
+class Cell extends Component {
   static propTypes = {
     style: ViewPropTypes.style,
     textStyle: Text.propTypes.style,
@@ -9,32 +9,49 @@ export class Cell extends Component {
   }
 
   render() {
-    const { data, width, height, flex, style, textStyle, borderStyle, ...props } = this.props;
-    const textDom = React.isValidElement(data) ? data : <Text style={[textStyle, styles.text]} {...props}>{data}</Text>;
-    const borderTopWidth = borderRightWidth = borderStyle && borderStyle.borderWidth || 1;
-    const borderColor = borderStyle && borderStyle.borderColor || '#000';
+    const {data, width, height, flex, style, textStyle,isRowTitle, ...props} = this.props;
+    const textDom = React.isValidElement(data) ? data : (
+        <Text style={[textStyle, styles.text]} {...props}>{data}</Text>
+      );
+    let borderWidth,borderColor;
+    if (this.props.borderStyle && this.props.borderStyle.borderWidth !== undefined) {
+      borderWidth = this.props.borderStyle.borderWidth;
+    } else {
+      borderWidth = 1;
+    }
+    if (this.props.borderStyle && this.props.borderStyle.borderColor) {
+      borderColor = this.props.borderStyle.borderColor;
+    } else {
+      borderColor = 'rgba(169, 169, 169, 0.25)';
+    }
 
     return (
       <View style={[
         {
-          borderTopWidth,
-          borderRightWidth,
-          borderColor,
+          borderTopWidth: borderWidth,
+          borderRightWidth: this.props.isRowTitle? 0: borderWidth,
+          borderColor: borderColor,
         },
         styles.cell,
-        width && { width },
-        height && { height },
-        flex && { flex },
-        !width && !flex && !height && !style && { flex: 1 },
+        width && {width: this.props.isRowTitle?width: 60},
+        height && {height: height},
+        flex && {flex: flex},
+        !width && !flex && !height && !style && {flex: 1},
         style
       ]}>
         {textDom}
       </View>
-    );
+    )
   }
-};
+}
 
 const styles = StyleSheet.create({
-  cell: { justifyContent: 'center' },
-  text: { backgroundColor: 'transparent' }
-});
+  cell: {
+    justifyContent: 'center',
+  },
+  text: {
+    backgroundColor: 'transparent',
+  },
+})
+
+export default Cell;
